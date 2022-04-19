@@ -20,7 +20,28 @@ const login = async (req, res, next) => {
   }
 };
 
+const getAll = async (_req, res, next) => {
+  try {
+    const users = await userService.getAll();
+    return res.status(200).json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getById = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const user = await userService.getById(id);
+    return res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   create,
   login,
+  getAll,
+  getById,
 };
