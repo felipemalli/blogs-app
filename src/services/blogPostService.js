@@ -10,9 +10,7 @@ const create = async (title, content, categoryIds, userId) => {
   const post = await BlogPost.create({ userId, title, content });
 
   post.addCategory(categories);
-
-  categories.addPost(post);
-
+  
   return post;
 };
 
