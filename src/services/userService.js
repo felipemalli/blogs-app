@@ -21,11 +21,9 @@ const login = async (email, password) => {
   const existUser = await User.findOne({ where: { email } });
   
   if (!existUser) throw badRequest('Invalid fields');
-
-  const { dataValues: { id } } = existUser;
-  
   if (existUser.dataValues.password !== password) throw badRequest('Invalid password');
-
+  
+  const { dataValues: { id } } = existUser;
   const token = jwt.sign({ id }, process.env.JWT_SECRET, jwtConfig);
 
   return token;

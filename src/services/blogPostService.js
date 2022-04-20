@@ -1,36 +1,30 @@
-const { BlogPost, Category } = require('../models');
+const { BlogPost, Category, User } = require('../models');
 const badRequest = require('../error/badRequest');
 // const notFound = require('../error/notFound');
 // const unauthorized = require('../error/unauthorized');
 
 const create = async (title, content, categoryIds, userId) => {
-  await Promise.all(categoryIds.map(async (eachId) => {
-    const exist = await Category.findByPk(eachId);
-    if (!exist) throw badRequest('"categoryIds" not found');
-  }));
+  const categories = await Promise.all(categoryIds.map((eachId) => Category.findByPk(eachId)));
+  if (categories.some((c) => !c)) throw badRequest('"categoryIds" not found');
 
-  const post = await BlogPost.create({
-    userId,
-    title,
-    content,
-  });
+  const post = await BlogPost.create({ userId, title, content });
 
-  // await Promise.all(categories.map(async (eachCategory) => {   --> forma de informar a tabela auxiliar??
-  //   await PostsCategories.create({
-  //     postId: id,                      --> puxar id do controller?
-  //     categoryId: eachCategory,
-  //   });
-  // }));
+  post.addCategory(categories);
 
-  // post.addCategory(categories); // --> outra forma??
+  categories.addPost(post);
 
   return post;
 };
 
-// const getAll = async () => {
-//   const categories = await Category.findAll();
-//   return categories;
-// };
+const getAll = async () => {
+  const blogPosts = await BlogPost.findAll({ 
+    include: [
+      { model: User, as: 'user', attributes: { exclude: ['password'] } },
+      { model: Category, as: 'categories', through: { attributes: [] } },
+    ],
+  });
+  return blogPosts;
+};
 
 // const getById = async (id) => {
 //   const user = await User.findByPk(id, { attributes: { exclude: 'password' } });
@@ -52,7 +46,7 @@ const create = async (title, content, categoryIds, userId) => {
 
 module.exports = {
   create,
-  // getAll,
+  getAll,
   // getById,
   // update,
   // remove,
