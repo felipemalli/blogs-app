@@ -22,7 +22,7 @@ const create = async (title, content, categoryIds, userId) => {
   //   });
   // }));
 
-  // post.addCategory(categories);    --> outra forma??
+  // post.addCategory(categories); // --> outra forma??
 
   return post;
 };

@@ -19,11 +19,11 @@ const create = async (displayName, email, password, image) => {
 
 const login = async (email, password) => {
   const existUser = await User.findOne({ where: { email } });
-
-  const { dataValues: { id } } = existUser;
-
+  
   if (!existUser) throw badRequest('Invalid fields');
 
+  const { dataValues: { id } } = existUser;
+  
   if (existUser.dataValues.password !== password) throw badRequest('Invalid password');
 
   const token = jwt.sign({ id }, process.env.JWT_SECRET, jwtConfig);
