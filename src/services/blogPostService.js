@@ -1,6 +1,6 @@
 const { BlogPost, Category, User } = require('../models');
 const badRequest = require('../error/badRequest');
-// const notFound = require('../error/notFound');
+const notFound = require('../error/notFound');
 // const unauthorized = require('../error/unauthorized');
 
 const create = async (title, content, categoryIds, userId) => {
@@ -26,11 +26,16 @@ const getAll = async () => {
   return blogPosts;
 };
 
-// const getById = async (id) => {
-//   const user = await User.findByPk(id, { attributes: { exclude: 'password' } });
-//   if (!user) throw notFound('User does not exist');
-//   return user;
-// };
+const getById = async (id) => {
+  const blogPosts = await BlogPost.findByPk(id, { 
+    include: [
+      { model: User, as: 'user', attributes: { exclude: ['password'] } },
+      { model: Category, as: 'categories', through: { attributes: [] } },
+    ],
+  });
+  if (!blogPosts) throw notFound('Post does not exist');
+  return blogPosts;
+};
 
 // const update = async (id) => {
 //   const user = await User.findByPk(id, { attributes: { exclude: 'password' } });
@@ -47,7 +52,7 @@ const getAll = async () => {
 module.exports = {
   create,
   getAll,
-  // getById,
+  getById,
   // update,
   // remove,
 };
