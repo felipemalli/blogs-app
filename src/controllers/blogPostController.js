@@ -29,11 +29,23 @@ const getById = async (req, res, next) => {
   }
 };
 
+const getBySearch = async (req, res, next) => {
+  try {
+    const searchText = req.query.q;
+    console.log(searchText);
+    const blogPosts = await blogPostService.getBySearch(searchText);
+    return res.status(200).json(blogPosts);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const update = async (req, res, next) => {
   const { id } = req.params;
-  const { title, content } = req.body;
+  const { title, content, categoryIds } = req.body;
+  const info = { title, content, id };
   try {
-    const updatedPost = await blogPostService.update(title, content, id, req.user.id);
+    const updatedPost = await blogPostService.update(info, req.user.id, categoryIds);
     return res.status(200).json(updatedPost);
   } catch (error) {
     next(error);
@@ -54,6 +66,7 @@ module.exports = {
   create,
   getAll,
   getById,
+  getBySearch,
   update,
   remove,
 };

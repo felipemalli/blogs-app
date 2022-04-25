@@ -1,6 +1,6 @@
 const unauthorized = (message) => ({
   message,
-  errorCode: 401,
+  statusCode: 401,
   stack: Error().stack,
 });
 

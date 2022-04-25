@@ -1,7 +1,8 @@
+const { Op } = require('sequelize');
 const { BlogPost, Category, User } = require('../models');
 const badRequest = require('../error/badRequest');
 const notFound = require('../error/notFound');
-// const unauthorized = require('../error/unauthorized');
+const unauthorized = require('../error/unauthorized');
 
 const create = async (title, content, categoryIds, userId) => {
   const categories = await Promise.all(categoryIds.map((eachId) => Category.findByPk(eachId)));
@@ -25,32 +26,58 @@ const getAll = async () => {
 };
 
 const getById = async (id) => {
-  const blogPosts = await BlogPost.findByPk(id, { 
+  const blogPost = await BlogPost.findByPk(id, { 
     include: [
       { model: User, as: 'user', attributes: { exclude: ['password'] } },
       { model: Category, as: 'categories', through: { attributes: [] } },
     ],
   });
-  if (!blogPosts) throw notFound('Post does not exist');
+  if (!blogPost) throw notFound('Post does not exist');
+  return blogPost;
+};
+
+const getBySearch = async (searchText) => {
+  const blogPosts = await BlogPost.findAll({ 
+    where: {
+      [Op.or]: [
+        { title: { [Op.like]: `%${searchText}%` } }, // ou [Op.substring]: searchText
+        { content: { [Op.like]: `%${searchText}%` } },
+      ],
+    },
+    include: [
+      { model: User, as: 'user', attributes: { exclude: ['password'] } },
+      { model: Category, as: 'categories', through: { attributes: [] } },
+    ],
+  });
   return blogPosts;
 };
 
-// const update = async (id) => {
-//   const user = await User.findByPk(id, { attributes: { exclude: 'password' } });
-//   if (!user) throw notFound('User does not exist');
-//   return user;
-// };
+const update = async (info, userId, categoryIds) => {
+  if (categoryIds) throw badRequest('Categories cannot be edited');
+  
+  const { title, content, id } = info;
+  const blogPost = await BlogPost.findByPk(id, {
+    include: [{ model: Category, as: 'categories', through: { attributes: [] } }],
+  });
 
-// const remove = async (id) => {
-//   const user = await User.findByPk(id, { attributes: { exclude: 'password' } });
-//   if (!user) throw notFound('User does not exist');
-//   return user;
-// };
+  if (userId !== blogPost.userId) throw unauthorized('Unauthorized user');
+
+  await blogPost.update({ title, content }); // OU  updatedPost.title = title;  updatedPost.content = content;  await updatedPost.save();
+  return blogPost;
+};
+
+const remove = async (id, userId) => {
+  const blogPost = await BlogPost.findByPk(id);
+  if (!blogPost) throw notFound('Post does not exist');
+  if (userId !== blogPost.userId) throw unauthorized('Unauthorized user');
+  await BlogPost.destroy({ where: { id } });
+};
 
 module.exports = {
   create,
   getAll,
   getById,
-  // update,
-  // remove,
+  getBySearch,
+  update,
+  remove,
 };
