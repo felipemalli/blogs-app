@@ -40,9 +40,14 @@ const getById = async (id) => {
   return user;
 };
 
+const remove = async (id) => {
+  await User.destroy({ where: { id } });
+};
+
 module.exports = {
   create,
   login,
   getAll,
   getById,
+  remove,
 };
