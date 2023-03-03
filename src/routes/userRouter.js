@@ -4,8 +4,8 @@ const { createUserValidation } = require('../middlewares/userMiddleware');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 router.post('/', createUserValidation, userController.create);
-router.get('/', authMiddleware, userController.getAll);
 router.get('/:id', authMiddleware, userController.getById);
+router.get('/', authMiddleware, userController.getAll);
 router.delete('/me', authMiddleware, userController.remove);
 
 module.exports = router;
