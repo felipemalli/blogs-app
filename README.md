@@ -225,6 +225,6 @@ Response body:
 ### Database commands
 Drop the bank: `npm run drop` = "npx sequelize-cli db:drop $"
 
-create the bank and generate the tables: `npm run prestart` = "npx sequelize-cli db:create && npx sequelize-cli db:migrate $"
+Create the bank and generate the tables: `npm run prestart` = "npx sequelize-cli db:create && npx sequelize-cli db:migrate $"
 
 Insert data at tables: `npm run seed` = "npx sequelize-cli db:seed:all $"
